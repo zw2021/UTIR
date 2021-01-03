@@ -101,6 +101,7 @@ class SentimentLSTM(torch.nn.Module):
                       weight.new(self.n_layers, batch_size, self.hidden_dim).zero_())
 
         return hidden
+
 #== extract files from tarfile
 # tar = tarfile.open("aclImdb_v1.tar.gz")
 # tar.extractall("./text")
@@ -133,13 +134,14 @@ for review in reviews:
     r = [vocab_to_int[w] for w in review.split()]
     reviews_int.append(r)
 
-
+# Visualize and analyze review lengths
 reviews_len = [len(x) for x in reviews_int]
 pd.Series(reviews_len).hist()
 plt.title('Histogram for Lengths of Reviews')
 #print(pd.Series(reviews_len).describe())
 plt.show()
 
+# create vocab int mapping dictionary
 reviews_int = [ reviews_int[i] for i, l in enumerate(reviews_len) if l>0 ]
 encoded_labels = [ encoded_labels[i] for i, l in enumerate(reviews_len) if l> 0 ]
 
@@ -147,6 +149,7 @@ features = pad_features(reviews_int, seq_length=200) # tutorial used 200
 split_frac = 0.8
 len_feat = 50 # dummy value
 
+# split data for training
 train_x = features[0:int(split_frac*len_feat)]
 train_y = encoded_labels[0:int(split_frac*len_feat)]
 remaining_x = features[int(split_frac*len_feat):]
@@ -156,7 +159,7 @@ valid_y = remaining_y[0:int(len(remaining_y)*0.5)]
 test_x = remaining_x[int(len(remaining_x)*0.5):]
 test_y = remaining_y[int(len(remaining_y)*0.5):]
 
-
+# creating tensor data sets
 train_data = TensorDataset(torch.from_numpy(np.array(train_x)), torch.from_numpy(np.array(train_y)))
 valid_data = TensorDataset(torch.from_numpy(np.array(valid_x)), torch.from_numpy(np.array(valid_y)))
 test_data = TensorDataset(torch.from_numpy(np.array(test_x)), torch.from_numpy(np.array(test_y)))
@@ -202,7 +205,6 @@ optimizer = torch.optim.Adam(net.parameters(), lr=lr)
 
 
 # training params
-
 epochs = 4 # 3-4 is approx where I noticed the validation loss stop decreasing
 
 counter = 0
@@ -214,7 +216,7 @@ if(train_on_gpu):
     net.cuda()
 
 net.train()
-# train for some number of epochs
+# train for some number of epochs; call model with for loop
 for e in range(epochs):
     # initialize hidden state
     h = net.init_hidden(batch_size)
@@ -272,4 +274,3 @@ for e in range(epochs):
                   "Val Loss: {:.6f}".format(np.mean(val_losses)))
 
 
-print(('hi'))

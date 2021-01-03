@@ -144,8 +144,11 @@ scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 1, gamma=0.9)
 
 train_len = int(len(reviews_int) * 0.95)
 
+# split data for training and validating
 sub_train_, sub_valid_ = \
     random_split(reviews, [train_len, len(reviews_int) - train_len])
+
+# call model based on number of epochs
 for epoch in range(N_EPOCHS):
 
     start_time = time.time()
